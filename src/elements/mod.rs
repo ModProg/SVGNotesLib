@@ -1,14 +1,16 @@
 mod line;
 
 use std::collections::HashMap;
+use std::f32::consts::PI;
 use std::str::FromStr;
 
 use crate::colors::Color;
 use crate::DocumentError;
 
 use derivative::Derivative;
-use svg::node::element::tag;
+use svg::node::element::{self, tag};
 use svg::node::Value;
+
 use svg::parser::Event;
 use DocumentError::InvalidAttribute;
 use DocumentError::MissingAttribute;
@@ -16,7 +18,7 @@ use DocumentError::MissingAttribute;
 pub use self::line::Line;
 pub use self::line::Point;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Ngon {
     pub position: (f32, f32),
     pub stroke: Color,
@@ -81,26 +83,107 @@ impl FromAttributes for Ngon {
                     .get("fill")
                     .ok_or(MissingAttribute("fill".to_owned()))?;
                 Color::from_str(value)
-                    .map_err(|_| InvalidAttribute("fill".to_owned(), value.to_owned()))?
+                    .map_err(|_| InvalidAttribute("fill".to_owned(), value.to_owned()))
+                    .map(|c| {
+                        // TODO Give an Error on a malformed opacity maybe
+                        if let Some(Ok(value)) =
+                            attributes.get("fill-opacity").map(|s| f32::from_str(s))
+                        {
+                            c.with_opacity(value)
+                        } else {
+                            c
+                        }
+                    })?
             },
             stroke: {
                 let value: &str = attributes
                     .get("stroke")
                     .ok_or(MissingAttribute("stroke".to_owned()))?;
                 Color::from_str(value)
-                    .map_err(|_| InvalidAttribute("stroke".to_owned(), value.to_owned()))?
+                    .map_err(|_| InvalidAttribute("stroke".to_owned(), value.to_owned()))
+                    .map(|c| {
+                        // TODO Give an Error on a malformed opacity maybe
+                        if let Some(Ok(value)) =
+                            attributes.get("stroke-opacity").map(|s| f32::from_str(s))
+                        {
+                            c.with_opacity(value)
+                        } else {
+                            c
+                        }
+                    })?
             },
         })
     }
 }
 
-#[derive(Debug)]
+impl From<&Ngon> for element::Polygon {
+    fn from(n: &Ngon) -> Self {
+        Self::new()
+            .set(
+                "svgnote:position",
+                format!("{},{}", n.position.0, n.position.1),
+            )
+            .set("stroke", n.stroke.to_string_na())
+            .set("fill", n.fill.to_string_na())
+            .set("stroke-opacity", n.stroke.opacity())
+            .set("fill-opacity", n.fill.opacity())
+            .set("stroke-width", n.width)
+            .set("svgnote:angle", n.angle)
+            .set("svgnote:n", n.n)
+            .set("svgnote:radius", n.radius)
+            // Static
+            .set("svgnote:tool", "ngon")
+            .set("stroke-linecap", "round")
+            .set("stroke-linejoin", "round")
+            // Generated
+            .set(
+                "points",
+                n.points()
+                    .iter()
+                    .map(|(x, y)| format!("{},{}", x, y))
+                    .collect::<Vec<String>>(),
+            )
+    }
+}
+
+impl Ngon {
+    fn points(&self) -> Vec<(f32, f32)> {
+        let mut points = vec![];
+        let angle = 2. * PI / self.n as f32;
+        let offset_angle = PI / 2. + angle / 2.;
+        for i in 0..self.n {
+            points.push((
+                self.position.0
+                    + self.radius * (i as f32 * angle + offset_angle + self.angle).cos(),
+                self.position.1
+                    + self.radius * (i as f32 * angle + offset_angle + self.angle).sin(),
+            ))
+        }
+        points
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct Ellipse {
     pub position: (f32, f32),
     pub stroke: Color,
     pub fill: Color,
     pub width: f32,
     pub radius: f32,
+}
+impl From<&Ellipse> for element::Ellipse {
+    fn from(n: &Ellipse) -> Self {
+        Self::new()
+            .set("stroke", n.stroke.to_string_na())
+            .set("stroke-opacity", n.stroke.opacity())
+            .set("fill", n.fill.to_string_na())
+            .set("fill-opacity", n.fill.opacity())
+            .set("stroke-width", n.width)
+            .set("cx", n.position.0)
+            .set("cy", n.position.1)
+            .set("rx", n.radius)
+            .set("ry", n.radius)
+    }
 }
 
 impl FromAttributes for Ellipse {
@@ -143,20 +226,40 @@ impl FromAttributes for Ellipse {
                     .get("fill")
                     .ok_or(MissingAttribute("fill".to_owned()))?;
                 Color::from_str(value)
-                    .map_err(|_| InvalidAttribute("fill".to_owned(), value.to_owned()))?
+                    .map_err(|_| InvalidAttribute("fill".to_owned(), value.to_owned()))
+                    .map(|c| {
+                        // TODO Give an Error on a malformed opacity maybe
+                        if let Some(Ok(value)) =
+                            attributes.get("fill-opacity").map(|s| f32::from_str(s))
+                        {
+                            c.with_opacity(value)
+                        } else {
+                            c
+                        }
+                    })?
             },
             stroke: {
                 let value: &str = attributes
                     .get("stroke")
                     .ok_or(MissingAttribute("stroke".to_owned()))?;
                 Color::from_str(value)
-                    .map_err(|_| InvalidAttribute("stroke".to_owned(), value.to_owned()))?
+                    .map_err(|_| InvalidAttribute("stroke".to_owned(), value.to_owned()))
+                    .map(|c| {
+                        // TODO Give an Error on a malformed opacity maybe
+                        if let Some(Ok(value)) =
+                            attributes.get("stroke-opacity").map(|s| f32::from_str(s))
+                        {
+                            c.with_opacity(value)
+                        } else {
+                            c
+                        }
+                    })?
             },
         })
     }
 }
 
-#[derive(Derivative)]
+#[derive(Derivative, PartialEq)]
 #[derivative(Debug)]
 pub enum Element {
     Line(Line),
@@ -194,5 +297,12 @@ impl Element {
             }
             _ => Err(DocumentError::UnknownEvent),
         }
+    }
+    pub fn add_to_document(self, document: svg::Document) {
+        match &self {
+            Element::Line(line) => document.add::<element::Path>(line.into()),
+            Element::Ngon(_) => todo!(),
+            Element::Ellipse(_) => todo!(),
+        };
     }
 }

@@ -17,6 +17,19 @@ impl Color {
     pub const fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color {
         Color { r, g, b, a }
     }
+
+    pub fn to_string_na(&self) -> String {
+        format!("#{:02X}{:02X}{:02X}", self.r, self.g, self.b)
+    }
+
+    pub fn with_opacity(mut self, opacity: f32) -> Self {
+        self.a = (255.0 * opacity) as u8;
+        self
+    }
+
+    pub fn opacity(&self) -> f32 {
+        self.a as f32 / 255.0
+    }
 }
 
 impl FromStr for Color {
@@ -64,7 +77,12 @@ mod tests {
     #[test]
     fn encode_color() {
         assert_eq!(Color::rgb(0, 0, 0).to_string(), "#000000FF");
+        assert_eq!(Color::rgb(0, 0, 0).to_string_na(), "#000000");
         assert_eq!(Color::rgba(0x12, 0x0F, 0xF0, 0xAA).to_string(), "#120FF0AA");
+        assert_eq!(
+            Color::rgba(0x12, 0x0F, 0xF0, 0xAA).to_string_na(),
+            "#120FF0"
+        );
     }
 
     #[test]
