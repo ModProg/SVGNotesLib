@@ -9,9 +9,26 @@ pub struct Color {
     pub a: u8,
 }
 
+const fn f2u(f: f32) -> u8 {
+    (255.0 * f) as u8
+}
+
+const fn u2f(u: u8) -> f32 {
+    u as f32 / 255.0
+}
+
 impl Color {
     pub const fn rgb(r: u8, g: u8, b: u8) -> Color {
         Color::rgba(r, g, b, 255)
+    }
+
+    pub const fn rgbaf(r: f32, g: f32, b: f32, a: f32) -> Color {
+        Color {
+            r: f2u(r),
+            g: f2u(g),
+            b: f2u(b),
+            a: f2u(a),
+        }
     }
 
     pub const fn rgba(r: u8, g: u8, b: u8, a: u8) -> Color {
@@ -23,12 +40,12 @@ impl Color {
     }
 
     pub fn with_opacity(mut self, opacity: f32) -> Self {
-        self.a = (255.0 * opacity) as u8;
+        self.a = f2u(opacity);
         self
     }
 
     pub fn opacity(&self) -> f32 {
-        self.a as f32 / 255.0
+        u2f(self.a)
     }
 }
 

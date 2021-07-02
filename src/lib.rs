@@ -1,4 +1,4 @@
-#![feature(assert_matches)]
+#![feature(assert_matches, const_fn_floating_point_arithmetic)]
 use std::fmt::Display;
 use std::str::FromStr;
 
