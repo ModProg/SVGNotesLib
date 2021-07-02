@@ -57,7 +57,7 @@ impl FromStr for Document {
 impl Display for Document {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut doc = svg::Document::new()
-            .set("viewBox", (0, 0, 100, 100))
+            .set("viewBox", (0, 0, 2000, 2000))
             .set("width", "100mm")
             .set("height", "100mm")
             .set("xmlns:svgnote", "https://github.com/ModProg/SVGNotesLib")
