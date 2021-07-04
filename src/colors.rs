@@ -47,6 +47,11 @@ impl Color {
     pub fn opacity(&self) -> f32 {
         u2f(self.a)
     }
+
+    pub fn floats(&self)->(f32,f32,f32,f32){
+        let Color { r, g, b, a } = *self;
+        return (u2f(r),u2f(g),u2f(b),u2f(a))
+    }
 }
 
 impl FromStr for Color {
