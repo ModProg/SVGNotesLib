@@ -262,9 +262,9 @@ impl FromAttributes for Ellipse {
 #[derive(Derivative, PartialEq)]
 #[derivative(Debug)]
 pub enum Element {
-    Line(Line),
-    Ngon(Ngon),
-    Ellipse(Ellipse),
+    Line(Line, i32),
+    Ngon(Ngon, i32),
+    Ellipse(Ellipse, i32),
 }
 
 pub trait FromAttributes: Sized {
@@ -272,14 +272,14 @@ pub trait FromAttributes: Sized {
 }
 
 impl Element {
-    pub fn from_event(e: Event) -> Result<Self, DocumentError> {
+    pub fn from_event(e: Event, id: i32) -> Result<Self, DocumentError> {
         match e {
             Event::Tag(tag::Path, _, attributes) => {
                 let tool: &str = attributes
                     .get("svgnote:tool")
                     .ok_or(MissingAttribute("svgnote:tool".to_owned()))?;
                 match tool {
-                    "pen" => Ok(Element::Line(Line::from_attributes(attributes)?)),
+                    "pen" => Ok(Element::Line(Line::from_attributes(attributes)?, id)),
                     _ => Err(InvalidAttribute("svgnote:tool".to_owned(), tool.to_owned()))?,
                 }
             }
@@ -288,21 +288,14 @@ impl Element {
                     .get("svgnote:tool")
                     .ok_or(MissingAttribute("svgnote:tool".to_owned()))?;
                 match tool {
-                    "ngon" => Ok(Element::Ngon(Ngon::from_attributes(attributes)?)),
+                    "ngon" => Ok(Element::Ngon(Ngon::from_attributes(attributes)?, id)),
                     _ => Err(InvalidAttribute("svgnote:tool".to_owned(), tool.to_owned()))?,
                 }
             }
             Event::Tag(tag::Ellipse, _, attributes) => {
-                Ok(Element::Ellipse(Ellipse::from_attributes(attributes)?))
+                Ok(Element::Ellipse(Ellipse::from_attributes(attributes)?, id))
             }
             _ => Err(DocumentError::UnknownEvent),
         }
-    }
-    pub fn add_to_document(self, document: svg::Document) {
-        match &self {
-            Element::Line(line) => document.add::<element::Path>(line.into()),
-            Element::Ngon(_) => todo!(),
-            Element::Ellipse(_) => todo!(),
-        };
     }
 }
