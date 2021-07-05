@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -48,9 +48,9 @@ impl Color {
         u2f(self.a)
     }
 
-    pub fn floats(&self)->(f32,f32,f32,f32){
+    pub fn floats(&self) -> (f32, f32, f32, f32) {
         let Color { r, g, b, a } = *self;
-        return (u2f(r),u2f(g),u2f(b),u2f(a))
+        return (u2f(r), u2f(g), u2f(b), u2f(a));
     }
 }
 
