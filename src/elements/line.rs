@@ -21,6 +21,12 @@ impl fmt::Debug for Point {
     }
 }
 
+impl Point {
+    pub fn distance_to(&self, other: Self) -> f32 {
+        ((self.0 - other.0).powi(2) + (self.1 - other.1).powi(2)).sqrt()
+    }
+}
+
 impl fmt::Display for Point {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{},{},{}", self.0, self.1, self.2)
