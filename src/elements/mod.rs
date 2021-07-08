@@ -18,7 +18,7 @@ use DocumentError::MissingAttribute;
 pub use self::line::Line;
 pub use self::line::Point;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Ngon {
     pub position: (f32, f32),
     pub stroke: Color,
@@ -163,7 +163,7 @@ impl Ngon {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Ellipse {
     pub position: (f32, f32),
     pub stroke: Color,
@@ -259,7 +259,7 @@ impl FromAttributes for Ellipse {
     }
 }
 
-#[derive(Derivative, PartialEq)]
+#[derive(Derivative, PartialEq, Clone)]
 #[derivative(Debug)]
 pub enum Element {
     Line(Line, i32),

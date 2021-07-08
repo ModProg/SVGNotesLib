@@ -39,7 +39,7 @@ impl From<Point> for (f32, f32) {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Line {
     pub color: Color,
     pub width: f32,

@@ -128,7 +128,7 @@ mod tests {
        svgnote:width="4"
        svgnote:points="10,10,1 60,30,4 50,60,3 90,10,2"
     />
-    <polygon 
+    <polygon
        fill="#000000"
        stroke="#FF0000"
        stroke-width="3"
@@ -143,7 +143,7 @@ mod tests {
        svgnote:position="65,65"
        svgnote:radius="20"
     />
-    <ellipse 
+    <ellipse
        fill="#FFFF00"
        stroke="#FFFF00"
        fill-opacity="0.3333333333"
