@@ -95,6 +95,8 @@ mod tests {
     use crate::elements::Line;
     use crate::elements::LinePoint;
     use crate::elements::Ngon;
+    use crate::elements::Polyline;
+    use crate::elements::PolylinePoint;
     use crate::elements::{Element, Ellipse};
     use crate::Document;
 
@@ -265,6 +267,16 @@ mod tests {
                     fill: Color::rgba(0xFF, 0, 0, 0xFE),
                     width: 13.2,
                     radius: 12.2,
+                }),
+                Element::Polyline(Polyline {
+                    stroke: Color::rgb(0xFF, 0xFF, 12),
+                    fill: Color::rgba(0xFF, 0, 0, 0xFE),
+                    width: 13.2,
+                    points: vec![
+                        PolylinePoint(0.0, 0.0),
+                        PolylinePoint(1.1, 3.2),
+                        PolylinePoint(51.2, 13.9),
+                    ],
                 }),
             ],
         };
