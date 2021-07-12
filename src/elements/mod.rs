@@ -265,10 +265,10 @@ impl FromAttributes for Ellipse {
 #[derive(Derivative, PartialEq, Clone)]
 #[derivative(Debug)]
 pub enum Element {
-    Line(Line, i32),
-    Ngon(Ngon, i32),
-    Ellipse(Ellipse, i32),
-    Polyline(Polyline, i32),
+    Line(Line),
+    Ngon(Ngon),
+    Ellipse(Ellipse),
+    Polyline(Polyline),
 }
 
 pub trait FromAttributes: Sized {
@@ -276,14 +276,14 @@ pub trait FromAttributes: Sized {
 }
 
 impl Element {
-    pub fn from_event(e: Event, id: i32) -> Result<Self, DocumentError> {
+    pub fn from_event(e: Event) -> Result<Self, DocumentError> {
         match e {
             Event::Tag(tag::Path, _, attributes) => {
                 let tool: &str = attributes
                     .get("svgnote:tool")
                     .ok_or(MissingAttribute("svgnote:tool".to_owned()))?;
                 match tool {
-                    "pen" => Ok(Element::Line(Line::from_attributes(attributes)?, id)),
+                    "pen" => Ok(Element::Line(Line::from_attributes(attributes)?)),
                     _ => Err(InvalidAttribute("svgnote:tool".to_owned(), tool.to_owned()))?,
                 }
             }
@@ -292,16 +292,15 @@ impl Element {
                     .get("svgnote:tool")
                     .ok_or(MissingAttribute("svgnote:tool".to_owned()))?;
                 match tool {
-                    "ngon" => Ok(Element::Ngon(Ngon::from_attributes(attributes)?, id)),
+                    "ngon" => Ok(Element::Ngon(Ngon::from_attributes(attributes)?)),
                     _ => Err(InvalidAttribute("svgnote:tool".to_owned(), tool.to_owned()))?,
                 }
             }
-            Event::Tag(tag::Polyline, _, attributes) => Ok(Element::Polyline(
-                Polyline::from_attributes(attributes)?,
-                id,
-            )),
+            Event::Tag(tag::Polyline, _, attributes) => {
+                Ok(Element::Polyline(Polyline::from_attributes(attributes)?))
+            }
             Event::Tag(tag::Ellipse, _, attributes) => {
-                Ok(Element::Ellipse(Ellipse::from_attributes(attributes)?, id))
+                Ok(Element::Ellipse(Ellipse::from_attributes(attributes)?))
             }
             _ => Err(DocumentError::UnknownEvent),
         }

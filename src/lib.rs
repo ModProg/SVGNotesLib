@@ -41,16 +41,10 @@ impl FromStr for Document {
     type Err = DocumentError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut id = 1;
         return Ok(Self {
             elements: svg::read(s)
                 .unwrap()
-                .map(|e| {
-                    Element::from_event(e, {
-                        id += 1;
-                        id
-                    })
-                })
+                .map(|e| Element::from_event(e))
                 .filter(|e| match e {
                     Err(DocumentError::UnknownEvent) => false,
                     _ => true,
@@ -72,10 +66,10 @@ impl Display for Document {
             .elements
             .iter()
             .fold(doc, |doc, element| match element {
-                Element::Line(e, _) => doc.add::<svg::node::element::Path>(e.into()),
-                Element::Ngon(e, _) => doc.add::<svg::node::element::Polygon>(e.into()),
-                Element::Ellipse(e, _) => doc.add::<svg::node::element::Ellipse>(e.into()),
-                Element::Polyline(e, _) => doc.add::<svg::node::element::Polyline>(e.into()),
+                Element::Line(e) => doc.add::<svg::node::element::Path>(e.into()),
+                Element::Ngon(e) => doc.add::<svg::node::element::Polygon>(e.into()),
+                Element::Ellipse(e) => doc.add::<svg::node::element::Ellipse>(e.into()),
+                Element::Polyline(e) => doc.add::<svg::node::element::Polyline>(e.into()),
             });
         writedoc!(
             f,
