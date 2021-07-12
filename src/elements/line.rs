@@ -13,28 +13,28 @@ use crate::DocumentError;
 use super::FromAttributes;
 
 #[derive(PartialEq, Clone, Copy)]
-pub struct Point(pub f32, pub f32, pub f32);
+pub struct LinePoint(pub f32, pub f32, pub f32);
 
-impl fmt::Debug for Point {
+impl fmt::Debug for LinePoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({},{}:{})", self.0, self.1, self.2)
     }
 }
 
-impl Point {
+impl LinePoint {
     pub fn distance_to(&self, other: Self) -> f32 {
         ((self.0 - other.0).powi(2) + (self.1 - other.1).powi(2)).sqrt()
     }
 }
 
-impl fmt::Display for Point {
+impl fmt::Display for LinePoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{},{},{}", self.0, self.1, self.2)
     }
 }
 
-impl From<Point> for (f32, f32) {
-    fn from(val: Point) -> Self {
+impl From<LinePoint> for (f32, f32) {
+    fn from(val: LinePoint) -> Self {
         (val.0, val.1)
     }
 }
@@ -43,7 +43,7 @@ impl From<Point> for (f32, f32) {
 pub struct Line {
     pub color: Color,
     pub width: f32,
-    pub points: Vec<Point>,
+    pub points: Vec<LinePoint>,
 }
 
 impl PartialEq for Line {
@@ -74,7 +74,7 @@ impl From<&Line> for element::Path {
                 "svgnote:points",
                 line.points
                     .iter()
-                    .map(Point::to_string)
+                    .map(LinePoint::to_string)
                     .collect::<Vec<String>>(),
             )
             // Static
@@ -118,7 +118,7 @@ impl FromAttributes for Line {
                     .map(|s| {
                         let a: Vec<&str> = s.split(',').collect();
                         if a.len() == 3 {
-                            Ok(Point(
+                            Ok(LinePoint(
                                 f32::from_str(a[0]).map_err(|_| InvalidPoint(s.to_owned()))?,
                                 f32::from_str(a[1]).map_err(|_| InvalidPoint(s.to_owned()))?,
                                 f32::from_str(a[2]).map_err(|_| InvalidPoint(s.to_owned()))?,

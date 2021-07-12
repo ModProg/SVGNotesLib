@@ -1,4 +1,5 @@
 mod line;
+mod polygon;
 
 use std::collections::HashMap;
 use std::f32::consts::PI;
@@ -16,7 +17,9 @@ use DocumentError::InvalidAttribute;
 use DocumentError::MissingAttribute;
 
 pub use self::line::Line;
-pub use self::line::Point;
+pub use self::line::LinePoint;
+pub use self::polygon::Polyline;
+pub use self::polygon::PolylinePoint;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Ngon {
@@ -265,6 +268,7 @@ pub enum Element {
     Line(Line, i32),
     Ngon(Ngon, i32),
     Ellipse(Ellipse, i32),
+    Polyline(Polyline, i32),
 }
 
 pub trait FromAttributes: Sized {
@@ -292,6 +296,10 @@ impl Element {
                     _ => Err(InvalidAttribute("svgnote:tool".to_owned(), tool.to_owned()))?,
                 }
             }
+            Event::Tag(tag::Polyline, _, attributes) => Ok(Element::Polyline(
+                Polyline::from_attributes(attributes)?,
+                id,
+            )),
             Event::Tag(tag::Ellipse, _, attributes) => {
                 Ok(Element::Ellipse(Ellipse::from_attributes(attributes)?, id))
             }

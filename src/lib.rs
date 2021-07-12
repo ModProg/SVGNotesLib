@@ -45,7 +45,12 @@ impl FromStr for Document {
         return Ok(Self {
             elements: svg::read(s)
                 .unwrap()
-                .map(|e|Element::from_event(e, {id += 1; id}))
+                .map(|e| {
+                    Element::from_event(e, {
+                        id += 1;
+                        id
+                    })
+                })
                 .filter(|e| match e {
                     Err(DocumentError::UnknownEvent) => false,
                     _ => true,
@@ -67,9 +72,10 @@ impl Display for Document {
             .elements
             .iter()
             .fold(doc, |doc, element| match element {
-                Element::Line(e,_) => doc.add::<svg::node::element::Path>(e.into()),
-                Element::Ngon(e,_) => doc.add::<svg::node::element::Polygon>(e.into()),
-                Element::Ellipse(e,_) => doc.add::<svg::node::element::Ellipse>(e.into()),
+                Element::Line(e, _) => doc.add::<svg::node::element::Path>(e.into()),
+                Element::Ngon(e, _) => doc.add::<svg::node::element::Polygon>(e.into()),
+                Element::Ellipse(e, _) => doc.add::<svg::node::element::Ellipse>(e.into()),
+                Element::Polyline(e, _) => doc.add::<svg::node::element::Polyline>(e.into()),
             });
         writedoc!(
             f,
@@ -93,8 +99,8 @@ mod tests {
 
     use crate::colors::Color;
     use crate::elements::Line;
+    use crate::elements::LinePoint;
     use crate::elements::Ngon;
-    use crate::elements::Point;
     use crate::elements::{Element, Ellipse};
     use crate::Document;
 
@@ -177,7 +183,7 @@ mod tests {
                     a: 0xFF
                 }
             })
-        if *width == 4.0  &&  elems_eq(&points, &[(10.0,10.0,1.0),(60.0,30.0,4.0),(50.0, 60.0,3.0),(90.0, 10.0,2.0)].iter().map(|&(x,y,w)| Point( x,y,w)).collect::<Vec<_>>()));
+        if *width == 4.0  &&  elems_eq(&points, &[(10.0,10.0,1.0),(60.0,30.0,4.0),(50.0, 60.0,3.0),(90.0, 10.0,2.0)].iter().map(|&(x,y,w)| LinePoint( x,y,w)).collect::<Vec<_>>()));
         assert_matches!(
             &d.elements[1],
             Element::Ngon(Ngon {
@@ -245,9 +251,9 @@ mod tests {
                     color: Color::rgb(0xFF, 0, 0),
                     width: 5.0,
                     points: vec![
-                        Point(0., 0., 0.),
-                        Point(2., 10., 1.),
-                        Point(1.2313, 10.213, 1.123),
+                        LinePoint(0., 0., 0.),
+                        LinePoint(2., 10., 1.),
+                        LinePoint(1.2313, 10.213, 1.123),
                     ],
                 }),
                 Element::Ngon(Ngon {
